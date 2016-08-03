@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# LSF batch script to index for bowtie2
+#
+#BSUB -q NBI-Prod128
+#BSUB -J bowtie2_index 
+#BSUB -R "rusage[mem=100000]"
+
+
+cd /nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/WHEASE
+
+source bowtie2-2.2.4
+
+bowtie2-build -f Triticum_aestivum.IWGSC1.0+popseq.30.dna_sm.genome.fa Triticum_aestivum.IWGSC1.0+popseq.30.dna_sm.genome
+

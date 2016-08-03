@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# LSF batch script to launch parallel picard tasks
+#
+#BSUB -q NBI-Prod128
+#BSUB -J picard_CreateSequenceDictionary
+#BSUB -R "rusage[mem=10000]"
+#BSUB -n 8
+
+
+
+cd /nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/WHEASE//exome_capture_analysis/
+source picard-1.134
+picard CreateSequenceDictionary REFERENCE=/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/WHEASE//Triticum_aestivum.IWGSC1.0+popseq.30.dna_sm.genome.fa OUTPUT=/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/WHEASE//Triticum_aestivum.IWGSC1.0+popseq.30.dna_sm.genome.dict

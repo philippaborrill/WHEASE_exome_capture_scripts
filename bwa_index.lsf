@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# LSF batch script to index for bwa
+#
+#BSUB -q NBI-Test128
+#BSUB -J bwa_index 
+#BSUB -R "rusage[mem=100000]"
+
+
+cd /nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/WHEASE
+
+bwa index -a bwtsw Triticum_aestivum.IWGSC1.0+popseq.30.dna_sm.genome.fa
+
