@@ -1,0 +1,4 @@
+*.bed
+samtools_variant_calling_17_06_2016.zip
+*.zip
+positions_of_all_first_exons.gtf

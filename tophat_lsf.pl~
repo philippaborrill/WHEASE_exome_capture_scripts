@@ -1,0 +1,126 @@
+#!/usr/bin/perl -w
+
+# Re-engineered to use LSF properly
+# Martin.Trick@jic.ac.uk, 2012
+#
+# Aim of script is to align reads from RNA-seq for multiple samples to a common reference using tophat2
+# Make sure you have bowtie-2 index of reference sequence available and in correct path
+# Make sure you have already make an index of the .gff file you are using: can run "tophat2 -G /nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/IWGSC_data/Triticum_aestivum.IWGSC2.25.gff --transcriptome-index=/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/IWGSC_data/Triticum_aestivum.IWGSC2.25_transcriptome_data/Triticum_aestivum.IWGSC2.25 /nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/IWGSC_data/Triticum_aestivum.IWGSC2.25.dna_sm.genome"
+
+my $path = '/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/';
+
+my $ref = "/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/IWGSC_data/Triticum_aestivum.IWGSC2.25.dna_sm.genome.fa";
+my $output_dir = "$path/expression_browser/alignments/";
+my $transcriptome_index = "/nbi/group-data/ifs/NBI/Research-Groups/Cristobal-Uauy/IWGSC_data/Triticum_aestivum.IWGSC2.25_transcriptome_data/Triticum_aestivum.IWGSC2.25/";
+
+
+unless ($ARGV[0]) {
+  print "Usage: tophat_lsf.pl <dir> (directory containing fastq)\n";
+  exit;
+}
+# <dir> should be a path from the $path to the directory containing the fastq
+
+my $dir = $ARGV[0];
+die "Couldn't find directory $dir ($!)\n" unless (-d "$path/$dir");
+
+chdir("$path/$dir") or die;
+
+my $bsub_header = <<"LSF";
+#!/bin/bash
+#
+# LSF batch script to launch parallel bwa tasks
+#
+#BSUB -q testing
+#BSUB -J tophat2_JOBNAME
+#BSUB -R "rusage[mem=100000]"
+LSF
+
+
+######be careful some experiments will have paired reads and some will have unpaired. Perhaps better to have one script for each case.
+###### This script will deal with paired reads where their format is "*_R1.fastq" and "*_R2.fastq"
+push @files, `ls -1 $path/$dir/*_R1.fastq`;
+
+
+
+foreach my $file(@files) {
+  chop($file);
+ #($prefix) = $file =~ /(S\d)_R1_170.fastq/;
+ ($prefix) = $file =~ /([\w\+\-]+)_R1.fastq/;
+ 
+  next if ($prefix =~ /^#/);
+  my $tmp_file = "/tmp/tophat_lsf.$prefix";
+  open (BSUB, ">$tmp_file") or die "Couldn't open temp file\n";
+  my $bsub_header = $bsub_header;
+  $bsub_header =~ s/JOBNAME/$prefix/;
+  print BSUB "$bsub_header\n\n";
+  print BSUB "\ncd $path/$dir\n";
+
+ # print BSUB "bwa mem $ref $prefix" . "_R1_170.fastq $prefix" . "_R2_170.fastq > $prefix.170pe.sam\n";
+  #print BSUB "samtools view -bS $prefix.170pe.sam > $prefix.170pe.bam\n";
+  #print BSUB "samtools sort $prefix.170pe.bam $prefix.170pe.sorted\n";
+  #print BSUB "samtools flagstat $prefix.170pe.bam\n";
+  #print BSUB "samtools index $prefix.170pe.sorted.bam $prefix.170pe.sorted.bai\n";
+
+#using bwa mem, make bam, sort, flagstat, index and remove sam
+ # print BSUB "bwa mem -t 64 $ref $prefix"."_R1.fastq  $prefix"."_R2.fastq > $prefix.sam\n";
+ # print BSUB "samtools view -bS $prefix.sam > $prefix.bam\n";
+ # print BSUB "samtools sort $prefix.bam $prefix.sorted\n";
+ # print BSUB "samtools flagstat $prefix.bam\n";
+ # print BSUB "samtools index $prefix.sorted.bam $prefix.sorted.bai\n";
+ # print BSUB "rm -f $prefix.sam\n";
+
+#using tophat2
+
+  print BSUB "source bowtie2-2.1.0";
+  print BSUB "source boost-1.52.0";
+  print BSUB "source tophat-2.0.10";
+  print BSUB "source samtools-0.1.19";
+
+# check settings are as required - here I'm using the transcriptome reference- might not want to in the end
+# to make tophat not require paired end reads just remove the "_R2.fastq" file from the following line
+  print BSUB "tophat2 --max-intron-length 4000 --read-mismatches 2 -o $output_dir/$prefix -p 64 --transcriptome-index=$transcriptome_index $ref $prefix"."_R1.fastq $prefix"."_R2.fastq";
+ 
+#  print BSUB "bwa aln -t 64 -n 2 $ref $prefix"."_R1.fastq > $output_dir/$prefix"."_bwa_R1_n2.sai\n";
+#  print BSUB "bwa aln -t 64 -n 2 $ref $prefix"."_R2.fastq > $output_dir/$prefix"."_bwa_R2_n2.sai\n\n";
+#  print BSUB "bwa sampe $ref $output_dir/$prefix"."_bwa_R1_n2.sai $output_dir/$prefix"."_bwa_R2_n2.sai $prefix"."_R1.fastq $prefix"."_R2.fastq > $output_dir/$prefix"."_bwa_n2.sam\n\n"; 
+#  print BSUB "samtools view -bS $output_dir/$prefix"."_bwa_n2.sam > $output_dir/$prefix"."_bwa_n2.bam\n";
+#  print BSUB "samtools flagstat $output_dir/$prefix"."_bwa_n2.bam\n\n";
+#  print BSUB "samtools view -b -h -f 0x2 $output_dir/$prefix"."_bwa_n2.bam > $output_dir/$prefix"."_bwa_n2.properpairs.bam\n";
+#  print BSUB "samtools sort $output_dir/$prefix"."_bwa_n2.properpairs.bam $output_dir/$prefix"."_bwa_n2.properpairs.sorted\n";
+# print BSUB "samtools flagstat $output_dir/$prefix"."_bwa_n2.properpairs.sorted.bam\n";
+#  print BSUB "samtools index $output_dir/$prefix"."_bwa_n2.properpairs.sorted.bam $output_dir/$prefix"."_bwa_n2.properpairs.sorted.bai\n";
+#  print BSUB "samtools view -b -h -f 0x2 -q 30 $output_dir/$prefix"."_bwa_n2.bam > $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.bam\n";
+#  print BSUB "samtools sort $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.bam $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.sorted\n";
+#  print BSUB "samtools flagstat $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.sorted.bam\n";
+#  print BSUB "samtools index $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.sorted.bam $output_dir/$prefix"."_bwa_n2.properpairs.MAPQ30.sorted.bai\n";
+#  print BSUB "rm -f $output_dir/$prefix"."_bwa_n2.sam\n";
+#  print BSUB "rm -f $output_dir/$prefix"."_bwa_n2.sai\n";
+  close BSUB;
+#  system("bsub < $tmp_file");
+#  unlink $tmp_file;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

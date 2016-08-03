@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# SLURM batch script to launch picardFastqtoSam
+#
+#SBATCH -p nbi-medium # partition (queue)
+#SBATCH -N 1 # number of nodes
+#SBATCH -n 2 # number of cores
+#SBATCH --mem 30000 # memory pool for all cores
+#SBATCH -t 2-00:00 # time (D-HH:MM)
+#SBATCH -o /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE//exome_capture_analysis/bowtie2_very_sens_replaced_ambig/slurm_output/fastqtosam_1190698_1.%N.%j.out # STDOUT
+#SBATCH -e /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE//exome_capture_analysis/bowtie2_very_sens_replaced_ambig/slurm_output/fastqtosam_1190698_1.%N.%j.err # STDERR
+#SBATCH -J 1190698_1_fastqtosam
+#SBATCH --mail-type=END,FAIL # notifications for job done & fail
+#SBATCH --mail-user=philippa.borrill@jic.ac.uk # send-to address
+
+
+cd /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE/exome_capture_data_july_2015/PKG_ENQ-718_50_wheat_exomes_data_transfer//Sample_1468_LIB17599_LDI15059
+source picard-1.134
+#srun picard FastqToSam FASTQ=1468_LIB17599_LDI15059_ACTTGA_L004_R1.fastq.gz FASTQ2=1468_LIB17599_LDI15059_ACTTGA_L004_R2.fastq.gz OUTPUT=/nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE//exome_capture_analysis//1190698_1.fastqtosam.bam READ_GROUP_NAME=1190698_1 SAMPLE_NAME=1190698 LIBRARY_NAME=LIB17599 PLATFORM=illumina PLATFORM_UNIT=1468_ACTTGA.L004
+cd /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE/exome_capture_analysis/
+srun samtools flagstat 1190698_1.fastqtosam.bam > 1190698_1.fastqtosam.flagstat.txt
+#srun samtools flagstat /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE/exome_capture_analysis/fastqtosam/1190698_1.fastqtosam.bam > /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE/exome_capture_analysis/fastqtosam/1190698_1.fastqtosam.flagstat.txt
