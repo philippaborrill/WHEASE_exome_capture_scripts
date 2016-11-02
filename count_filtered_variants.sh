@@ -26,15 +26,19 @@ cd /nbi/Research-Groups/NBI/Cristobal-Uauy/WHEASE/exome_capture_analysis/bowtie2
 #echo freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode.vcf
 #grep -v '^#' freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode.vcf | wc -l
 
-echo freebayes_all_samples_together_0.65_indiv_cov.recode.vcf
-grep -v '^#' freebayes_all_samples_together_0.65_indiv_cov.recode.vcf | wc -l
+#echo freebayes_all_samples_together_0.65_indiv_cov.recode.vcf
+#grep -v '^#' freebayes_all_samples_together_0.65_indiv_cov.recode.vcf | wc -l
 
-echo freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode_DP3.recode.vcf
-grep -v '^#' freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode_DP3.recode.vcf | wc -l
+#echo freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode_DP3.recode.vcf
+#grep -v '^#' freebayes_all_samples_together_0.75_only_under2_hets_max_2_alleles.recode_DP3.recode.vcf | wc -l
 
-echo freebayes_all_samples_together_only_under2_hets.vcf
-grep -v '^#' freebayes_all_samples_together_only_under2_hets.vcf | wc -l
+#echo freebayes_all_samples_together_only_under2_hets.vcf
+#grep -v '^#' freebayes_all_samples_together_only_under2_hets.vcf | wc -l
 
 
-echo freebayes_all_samples_together_only_under2_hets_max_2_alleles.recode.vcf
-grep -v '^#' freebayes_all_samples_together_only_under2_hets_max_2_alleles.recode.vcf | wc -l
+#echo freebayes_all_samples_together_only_under2_hets_max_2_alleles.recode.vcf
+#grep -v '^#' freebayes_all_samples_together_only_under2_hets_max_2_alleles.recode.vcf | wc -l
+
+echo freebayes_all_samples_together_whease_only.recode.vcf
+grep -v '^#' freebayes_all_samples_together_whease_only.recode.vcf | wc -l
+
